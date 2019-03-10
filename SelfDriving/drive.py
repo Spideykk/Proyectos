@@ -11,7 +11,7 @@ from PIL import Image
 
 sio = socketio.Server()
 app = Flask(__name__)
-speed_limit = 2
+speed_limit = 10
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -23,6 +23,7 @@ def telemetry(sid, data):
 	image = img_preprocess(image)
 	image = np.array([image])
 	steering_angle = float(model.predict(image))
+	print(steering_angle)
 	throttle = 1.0 - speed/speed_limit
 	send_control(steering_angle,throttle)
 
@@ -34,8 +35,8 @@ def connect(sid, environ):
 
 def send_control(steering, throttle):
 	sio.emit('steer', data = {
-			'steering_angle':steering.__str__(),
-			'throttle':throttle.__str__()
+			'steering_angle':steering.__str__().replace('.',','),
+			'throttle':throttle.__str__().replace('.',',')
 		})
 
 def img_preprocess(img):
@@ -48,6 +49,6 @@ def img_preprocess(img):
 
 
 if  __name__ == '__main__':
-	model = load_model('model.h5')
+	model = load_model('modelC.h5')
 	app = socketio.Middleware(sio, app)
 	eventlet.wsgi.server(eventlet.listen(('',4567)),app)
