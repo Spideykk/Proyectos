@@ -11,12 +11,13 @@ from PIL import Image
 
 sio = socketio.Server()
 app = Flask(__name__)
-speed_limit = 5
+speed_limit = 2
 
 @sio.on('telemetry')
 def telemetry(sid, data):
 	speed = float(data['speed'].replace(',','.'))
 	
+
 	image = Image.open(BytesIO(base64.b64decode(data['image'])))
 	image = np.asarray(image)
 	image = img_preprocess(image)
